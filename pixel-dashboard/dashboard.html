@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PIXEL.TOOLS — Dashboard</title>
+  <meta name="description" content="Everyday Web Utilities Dashboard — Your retro 8-bit toolbox.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/pixel.css">
+  <style>
+    /* ── LAYOUT ── */
+    html, body { height: 100%; overflow: hidden; }
+
+    #app {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: 220px;
+      min-width: 220px;
+      background: var(--dark);
+      border-right: 4px solid var(--green);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    #sidebar-logo {
+      padding: 16px 12px;
+      border-bottom: 3px solid var(--green);
+      text-align: center;
+    }
+
+    #sidebar-logo .logo-text {
+      font-family: var(--font-pixel);
+      font-size: 10px;
+      color: var(--green);
+      display: block;
+      text-shadow: 0 0 8px var(--green);
+      line-height: 2;
+    }
+
+    #sidebar-logo .logo-ver {
+      font-family: var(--font-vt);
+      font-size: 14px;
+      color: var(--gray-light);
+    }
+
+    #nav-list {
+      list-style: none;
+      padding: 8px 0;
+      flex: 1;
+    }
+
+    #nav-list li {
+      border-bottom: 2px solid var(--dark3);
+    }
+
+    #nav-list li button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--gray-light);
+      font-family: var(--font-pixel);
+      font-size: 7px;
+      padding: 12px 14px;
+      cursor: pointer;
+      text-align: left;
+      letter-spacing: 0.5px;
+      outline: none;
+      text-transform: uppercase;
+    }
+
+    #nav-list li button:hover {
+      background: var(--dark3);
+      color: var(--yellow);
+    }
+
+    #nav-list li.active button {
+      background: var(--green-dark);
+      color: var(--green);
+      border-left: 4px solid var(--green);
+    }
+
+    .nav-icon {
+      font-family: var(--font-vt);
+      font-size: 20px;
+      width: 22px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .nav-category {
+      font-family: var(--font-pixel);
+      font-size: 6px;
+      color: var(--gray);
+      padding: 12px 14px 4px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Pomodoro mini indicator in sidebar */
+    #sidebar-pomodoro-mini {
+      padding: 8px 14px;
+      border-top: 2px solid var(--gray);
+      font-family: var(--font-pixel);
+      font-size: 7px;
+      color: var(--pink);
+      display: none;
+    }
+
+    /* ── MAIN AREA ── */
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── HEADER ── */
+    #dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: var(--dark);
+      border-bottom: 4px solid var(--green);
+      flex-shrink: 0;
+    }
+
+    #header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #breadcrumb {
+      font-family: var(--font-pixel);
+      font-size: 8px;
+      color: var(--gray-light);
+    }
+
+    #breadcrumb span { color: var(--green); }
+
+    #header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #user-name {
+      font-family: var(--font-pixel);
+      font-size: 7px;
+      color: var(--green);
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #user-email {
+      font-family: var(--font-vt);
+      font-size: 14px;
+      color: var(--gray-light);
+    }
+
+    #clock {
+      font-family: var(--font-pixel);
+      font-size: 9px;
+      color: var(--blue);
+      letter-spacing: 2px;
+      min-width: 90px;
+      text-align: right;
+    }
+
+    /* ── TOOL AREA ── */
+    #tool-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      background: var(--black);
+    }
+
+    .tool-panel {
+      display: none;
+      animation: none;
+    }
+
+    .tool-panel.active {
+      display: block;
+    }
+
+    /* ── HOME PANEL ── */
+    #tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .tool-card {
+      border: 3px solid var(--gray);
+      background: var(--dark);
+      padding: 20px 16px;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 4px 4px 0 #222;
+    }
+
+    .tool-card:hover {
+      border-color: var(--green);
+      box-shadow: 4px 4px 0 var(--green-dim);
+    }
+
+    .tool-card:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0 0 0 var(--green-dim);
+    }
+
+    .tool-card .tc-icon {
+      font-family: var(--font-vt);
+      font-size: 40px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .tool-card .tc-name {
+      font-family: var(--font-pixel);
+      font-size: 7px;
+      color: var(--green);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .tool-card .tc-desc {
+      font-family: var(--font-vt);
+      font-size: 16px;
+      color: var(--gray-light);
+    }
+
+    .tool-card.cat-net  { border-color: var(--blue); }
+    .tool-card.cat-net:hover { border-color: var(--blue); box-shadow: 4px 4px 0 var(--blue-dim); }
+    .tool-card.cat-net:active { box-shadow: 0 0 0 var(--blue-dim); }
+
+    .tool-card.cat-content { border-color: var(--pink); }
+    .tool-card.cat-content:hover { border-color: var(--pink); box-shadow: 4px 4px 0 var(--pink-dim); }
+    .tool-card.cat-content:active { box-shadow: 0 0 0 var(--pink-dim); }
+
+    .tool-card.cat-prod { border-color: var(--yellow); }
+    .tool-card.cat-prod:hover { border-color: var(--yellow); box-shadow: 4px 4px 0 var(--yellow-dim); }
+    .tool-card.cat-prod:active { box-shadow: 0 0 0 var(--yellow-dim); }
+
+    /* ── STATUS BAR ── */
+    #status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 16px;
+      background: var(--dark);
+      border-top: 3px solid var(--green);
+      font-family: var(--font-pixel);
+      font-size: 6px;
+      color: var(--gray-light);
+      flex-shrink: 0;
+    }
+
+    /* Mobile sidebar toggle */
+    #sidebar-toggle {
+      display: none;
+      background: none;
+      border: 2px solid var(--green);
+      color: var(--green);
+      font-family: var(--font-pixel);
+      font-size: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      #sidebar {
+        position: fixed;
+        left: -224px;
+        top: 0;
+        height: 100%;
+        transition: none;
+        z-index: 1000;
+      }
+      #sidebar.open { left: 0; box-shadow: 4px 0 0 var(--green); }
+      #sidebar-toggle { display: block; }
+      #tool-area { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── SIDEBAR ── -->
+  <nav id="sidebar">
+    <div id="sidebar-logo">
+      <span class="logo-text">PIXEL.TOOLS</span>
+      <span class="logo-ver">v1.0.0</span>
+    </div>
+
+    <ul id="nav-list">
+      <li class="active" data-tool="home">
+        <button onclick="switchTool('home')">
+          <span class="nav-icon">⌂</span> HOME
+        </button>
+      </li>
+
+      <li><div class="nav-category">— NETWORK —</div></li>
+      <li data-tool="ipgeo">
+        <button onclick="switchTool('ipgeo')">
+          <span class="nav-icon text-blue">◈</span> IP GEOLOCATE
+        </button>
+      </li>
+      <li data-tool="subnet">
+        <button onclick="switchTool('subnet')">
+          <span class="nav-icon text-blue">⊞</span> SUBNET CALC
+        </button>
+      </li>
+      <li data-tool="ping">
+        <button onclick="switchTool('ping')">
+          <span class="nav-icon text-blue">◎</span> PING SIM
+        </button>
+      </li>
+
+      <li><div class="nav-category">— CONTENT —</div></li>
+      <li data-tool="base64">
+        <button onclick="switchTool('base64')">
+          <span class="nav-icon text-pink">⇄</span> BASE64 / URL
+        </button>
+      </li>
+      <li data-tool="palette">
+        <button onclick="switchTool('palette')">
+          <span class="nav-icon text-pink">▣</span> PALETTE GEN
+        </button>
+      </li>
+      <li data-tool="texttools">
+        <button onclick="switchTool('texttools')">
+          <span class="nav-icon text-pink">Aa</span> TEXT TOOLS
+        </button>
+      </li>
+
+      <li><div class="nav-category">— PRODUCTIVITY —</div></li>
+      <li data-tool="todo">
+        <button onclick="switchTool('todo')">
+          <span class="nav-icon text-yellow">☑</span> TODO LIST
+        </button>
+      </li>
+      <li data-tool="pomodoro">
+        <button onclick="switchTool('pomodoro')">
+          <span class="nav-icon text-yellow">◷</span> POMODORO
+        </button>
+      </li>
+      <li data-tool="jsonformat">
+        <button onclick="switchTool('jsonformat')">
+          <span class="nav-icon text-yellow">{}</span> JSON FMT
+        </button>
+      </li>
+    </ul>
+
+    <div id="sidebar-pomodoro-mini" id="pomo-sidebar">
+      ◷ <span id="pomo-sidebar-time">00:00</span>
+    </div>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <main id="main">
+
+    <!-- Header -->
+    <header id="dash-header">
+      <div id="header-left">
+        <button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <div id="breadcrumb">PIXEL.TOOLS &gt; <span id="breadcrumb-tool">HOME</span></div>
+      </div>
+      <div id="header-right">
+        <div id="clock">00:00:00</div>
+        <div id="user-info">
+          <div>
+            <div id="user-name">LOADING...</div>
+            <div id="user-email"></div>
+          </div>
+          <div class="px-avatar">
+            <img id="user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect width='40' height='40' fill='%231a1a1a'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' dominant-baseline='middle' font-size='20' fill='%2339ff14'%3E?%3C/text%3E%3C/svg%3E" alt="avatar">
+          </div>
+          <button class="px-btn px-btn-sm px-btn-red" onclick="handleSignOut()">LOGOUT</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Tool Area -->
+    <div id="tool-area">
+
+      <!-- HOME -->
+      <div id="tool-home" class="tool-panel active">
+        <div class="tool-header">
+          <h2>▸ COMMAND CENTER</h2>
+          <p>Select a tool from the sidebar or the grid below. PLAYER ONE, START!</p>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+          <div class="px-box" style="flex:1;min-width:180px;">
+            <div class="px-label">WELCOME BACK</div>
+            <div style="font-family:var(--font-pixel);font-size:10px;color:var(--green);" id="home-username">PLAYER ONE</div>
+            <div style="font-family:var(--font-vt);font-size:17px;color:var(--gray-light);margin-top:4px;" id="home-email"></div>
+          </div>
+          <div class="px-box-pink" style="flex:1;min-width:140px;text-align:center;">
+            <div class="px-label">TOOLS AVAILABLE</div>
+            <div style="font-family:var(--font-pixel);font-size:28px;color:var(--pink);">09</div>
+          </div>
+          <div class="px-box-blue" style="flex:1;min-width:140px;text-align:center;">
+            <div class="px-label">TODAY'S DATE</div>
+            <div style="font-family:var(--font-pixel);font-size:11px;color:var(--blue);" id="home-date">--</div>
+          </div>
+          <div class="px-box-yellow" style="flex:1;min-width:140px;text-align:center;">
+            <div class="px-label">TODO STREAK</div>
+            <div style="font-family:var(--font-pixel);font-size:24px;color:var(--yellow);" id="home-streak">0</div>
+            <div style="font-family:var(--font-vt);font-size:16px;color:var(--gray-light);">DAYS</div>
+          </div>
+        </div>
+
+        <div id="tool-grid">
+          <div class="tool-card cat-net" onclick="switchTool('ipgeo')">
+            <span class="tc-icon text-blue">◈</span>
+            <span class="tc-name">IP GEOLOCATE</span>
+            <span class="tc-desc">Lookup IP info</span>
+          </div>
+          <div class="tool-card cat-net" onclick="switchTool('subnet')">
+            <span class="tc-icon text-blue">⊞</span>
+            <span class="tc-name">SUBNET CALC</span>
+            <span class="tc-desc">CIDR network tool</span>
+          </div>
+          <div class="tool-card cat-net" onclick="switchTool('ping')">
+            <span class="tc-icon text-blue">◎</span>
+            <span class="tc-name">PING SIM</span>
+            <span class="tc-desc">HTTP latency test</span>
+          </div>
+          <div class="tool-card cat-content" onclick="switchTool('base64')">
+            <span class="tc-icon text-pink">⇄</span>
+            <span class="tc-name">BASE64 / URL</span>
+            <span class="tc-desc">Encode & decode</span>
+          </div>
+          <div class="tool-card cat-content" onclick="switchTool('palette')">
+            <span class="tc-icon text-pink">▣</span>
+            <span class="tc-name">PALETTE GEN</span>
+            <span class="tc-desc">8-bit color palettes</span>
+          </div>
+          <div class="tool-card cat-content" onclick="switchTool('texttools')">
+            <span class="tc-icon text-pink">Aa</span>
+            <span class="tc-name">TEXT TOOLS</span>
+            <span class="tc-desc">Case &amp; regex</span>
+          </div>
+          <div class="tool-card cat-prod" onclick="switchTool('todo')">
+            <span class="tc-icon text-yellow">☑</span>
+            <span class="tc-name">TODO LIST</span>
+            <span class="tc-desc">Tasks + streaks</span>
+          </div>
+          <div class="tool-card cat-prod" onclick="switchTool('pomodoro')">
+            <span class="tc-icon text-yellow">◷</span>
+            <span class="tc-name">POMODORO</span>
+            <span class="tc-desc">Focus timer</span>
+          </div>
+          <div class="tool-card cat-prod" onclick="switchTool('jsonformat')">
+            <span class="tc-icon text-yellow">{}</span>
+            <span class="tc-name">JSON FORMAT</span>
+            <span class="tc-desc">Validate &amp; pretty</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- IP GEOLOCATION -->
+      <div id="tool-ipgeo" class="tool-panel"></div>
+
+      <!-- SUBNET CALCULATOR -->
+      <div id="tool-subnet" class="tool-panel"></div>
+
+      <!-- PING SIMULATOR -->
+      <div id="tool-ping" class="tool-panel"></div>
+
+      <!-- BASE64 -->
+      <div id="tool-base64" class="tool-panel"></div>
+
+      <!-- PALETTE GENERATOR -->
+      <div id="tool-palette" class="tool-panel"></div>
+
+      <!-- TEXT TOOLS -->
+      <div id="tool-texttools" class="tool-panel"></div>
+
+      <!-- TODO LIST -->
+      <div id="tool-todo" class="tool-panel"></div>
+
+      <!-- POMODORO -->
+      <div id="tool-pomodoro" class="tool-panel"></div>
+
+      <!-- JSON FORMATTER -->
+      <div id="tool-jsonformat" class="tool-panel"></div>
+
+    </div>
+
+    <!-- Status bar -->
+    <div id="status-bar">
+      <span>PIXEL.TOOLS v1.0.0</span>
+      <span id="status-tool">TOOL: HOME</span>
+      <span id="status-mem">MEM: OK</span>
+    </div>
+
+  </main>
+</div>
+
+<!-- Toast container -->
+<div id="px-toast-container"></div>
+
+<!-- Scripts — config first, then core -->
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/store.js"></script>
+
+<!-- Tool scripts -->
+<script src="js/tools/ipgeo.js"></script>
+<script src="js/tools/subnet.js"></script>
+<script src="js/tools/ping.js"></script>
+<script src="js/tools/base64.js"></script>
+<script src="js/tools/palette.js"></script>
+<script src="js/tools/texttools.js"></script>
+<script src="js/tools/todo.js"></script>
+<script src="js/tools/pomodoro.js"></script>
+<script src="js/tools/json-formatter.js"></script>
+
+<!-- Dashboard controller -->
+<script src="js/dashboard.js"></script>
+</body>
+</html>
